@@ -5,23 +5,34 @@ import {
     Alert, AlertIcon, AlertDescription,
 } from '@chakra-ui/react';
 import Cookie from 'js-cookie';
+import { useAppDispatch } from "contexts/app.context";
+import { AccessToken } from "constants/cookie-name";
+import { ActionTypes } from "contexts/actions";
+import Router from 'next/router';
 
 const LoginPage = (): JSX.Element => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
+    const appDispatch = useAppDispatch();
 
     const handleOnSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         console.log(email, password);
         const auth = getAuth();
         signInWithEmailAndPassword(auth, email, password)
-            .then((usercredential) => {
-                // signed in 
-                const user = usercredential.user as any;
-                // ...
-                console.log('new user', user);
-                Cookie.set('ftt_acccess_token', user.accessToken);
+            .then(async (userCredential) => {
+                const {email, displayName} = userCredential.user;
+                const accessToken = await userCredential.user.getIdToken();
+                appDispatch({
+                    type: ActionTypes.SIGN_IN,
+                    payload: {
+                        email, displayName, accessToken
+                    }
+                })
+
+                Cookie.set(AccessToken, accessToken);
+                await Router.push('/');
             })
             .catch((error) => {
                 const errorcode = error.code;

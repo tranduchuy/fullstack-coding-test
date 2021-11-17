@@ -4,6 +4,7 @@ import {UserContext} from 'components/User'
 import {initializeApp} from "firebase/app";
 import {getIdToken, getAuth} from 'firebase/auth';
 import Cookie from 'js-cookie';
+import { AppProvider, useAppDispatch, useAppState } from "../contexts/app.context";
 
 
 const firebaseConfig = {
@@ -21,6 +22,7 @@ const app = initializeApp(firebaseConfig);
 
 const MyApp = ({Component, pageProps}) => {
     const [user, setUser] = useState();
+    const appState = useAppState();
 
     useEffect(() => {
         //getIdToken()
@@ -37,19 +39,27 @@ const MyApp = ({Component, pageProps}) => {
         //console.log(app);
     }, []);
 
-    if (pageProps.protected && !user) {
+    console.log('user: ', appState.user);
+
+    if (pageProps.protected && !appState.user) {
         return (
             <div>Loading...</div>
         )
     }
 
     return (
-        <UserContext.Provider value={user}>
-            <ChakraProvider>
-                <Component {...pageProps} />
-            </ChakraProvider>
-        </UserContext.Provider>
+      <ChakraProvider>
+          <Component {...pageProps} />
+      </ChakraProvider>
     )
 };
 
-export default MyApp;
+const Container = (props) => {
+    return (
+      <AppProvider>
+          <MyApp {...props} />
+      </AppProvider>
+    )
+}
+
+export default Container;
