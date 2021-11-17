@@ -1,5 +1,5 @@
 import Head from "next/head";
-import DynamicText, { DynamicTextRefMethod } from "../components/DynamicText";
+import DynamicText, { DynamicTextRefMethod } from "components/DynamicText";
 import { Box, Center, Flex, Input } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 
