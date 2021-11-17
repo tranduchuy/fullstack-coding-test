@@ -1,11 +1,16 @@
 import React, {useState} from 'react';
 import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
-import {Flex, Box, Heading, FormControl, Input, FormLabel, Button} from '@chakra-ui/react';
+import {
+    Flex, Box, Heading, FormControl, Input, FormLabel, Button,
+    Alert, AlertIcon, AlertDescription,
+} from '@chakra-ui/react';
 import Cookie from 'js-cookie';
 
 const LoginPage = (): JSX.Element => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMsg, setErrorMsg] = useState('');
+
     const handleOnSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         console.log(email, password);
@@ -22,7 +27,8 @@ const LoginPage = (): JSX.Element => {
                 const errorcode = error.code;
                 const errormessage = error.message;
                 // ..
-                console.error(error);
+                console.error(error, errorcode);
+                setErrorMsg(errormessage);
             });
     }
 
@@ -32,7 +38,16 @@ const LoginPage = (): JSX.Element => {
                 <Box textAlign="center">
                     <Heading>Login</Heading>
                 </Box>
-
+                {
+                    errorMsg.trim() !== '' && (
+                        <Box my={4}>
+                            <Alert status="error" borderRadius={4}>
+                                <AlertIcon />
+                                <AlertDescription>{errorMsg}</AlertDescription>
+                            </Alert>
+                        </Box>
+                    )
+                }
                 <Box my={4} textAlign="left">
                     <form onSubmit={handleOnSubmit}>
                         <FormControl isRequired>
