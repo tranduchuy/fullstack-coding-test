@@ -6,7 +6,6 @@ import firebase from 'firebase/initFireBase';
 firebase();
 
 const MyApp = ({Component, pageProps}) => {
-    const [user, setUser] = useState();
     const appState = useAppState();
 
     useEffect(() => {
@@ -23,8 +22,6 @@ const MyApp = ({Component, pageProps}) => {
         //setUser(result)
         //console.log(app);
     }, []);
-
-    console.log('user: ', appState.user);
 
     if (pageProps.protected && !appState.user) {
         return (
