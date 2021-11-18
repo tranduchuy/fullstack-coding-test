@@ -4,6 +4,8 @@ import {
 } from "@chakra-ui/react";
 import Post from "components/Post";
 import { useState } from "react";
+import {} from "firebase/app";
+import firestore from "firebase/db";
 
 type Post = {
   id: string;
@@ -12,75 +14,16 @@ type Post = {
   content: string;
 }
 
-export const products: Post[] = [
-  {
-    id: "1",
-    title: "Factory farming: the real climate culprit",
-    imageSrc: "//dkt6rvnu67rqj.cloudfront.net/sites/default/files/styles/305x205/public/media/Plant-Based-Treaty_0.jpg?itok=Bb2eCmHX",
-    content: '',
-  },
-  {
-    id: "2",
-    title: "What’s the real cost of your burger?",
-    imageSrc: "//dkt6rvnu67rqj.cloudfront.net/sites/default/files/styles/305x205/public/media/GettyImages-76747748.jpg?itok=e2BWsGD6",
-    content: '',
-  },
-  {
-    id: "1",
-    title: "Factory farming: the real climate culprit",
-    imageSrc: "//dkt6rvnu67rqj.cloudfront.net/sites/default/files/styles/305x205/public/media/Plant-Based-Treaty_0.jpg?itok=Bb2eCmHX",
-    content: '',
-  },
-  {
-    id: "2",
-    title: "What’s the real cost of your burger?",
-    imageSrc: "//dkt6rvnu67rqj.cloudfront.net/sites/default/files/styles/305x205/public/media/GettyImages-76747748.jpg?itok=e2BWsGD6",
-    content: '',
-  },
-  {
-    id: "1",
-    title: "Factory farming: the real climate culprit",
-    imageSrc: "//dkt6rvnu67rqj.cloudfront.net/sites/default/files/styles/305x205/public/media/Plant-Based-Treaty_0.jpg?itok=Bb2eCmHX",
-    content: '',
-  },
-  {
-    id: "2",
-    title: "What’s the real cost of your burger?",
-    imageSrc: "//dkt6rvnu67rqj.cloudfront.net/sites/default/files/styles/305x205/public/media/GettyImages-76747748.jpg?itok=e2BWsGD6",
-    content: '',
-  },
-  {
-    id: "1",
-    title: "Factory farming: the real climate culprit",
-    imageSrc: "//dkt6rvnu67rqj.cloudfront.net/sites/default/files/styles/305x205/public/media/Plant-Based-Treaty_0.jpg?itok=Bb2eCmHX",
-    content: '',
-  },
-  {
-    id: "2",
-    title: "What’s the real cost of your burger?",
-    imageSrc: "//dkt6rvnu67rqj.cloudfront.net/sites/default/files/styles/305x205/public/media/GettyImages-76747748.jpg?itok=e2BWsGD6",
-    content: '',
-  },
-  {
-    id: "1",
-    title: "Factory farming: the real climate culprit",
-    imageSrc: "//dkt6rvnu67rqj.cloudfront.net/sites/default/files/styles/305x205/public/media/Plant-Based-Treaty_0.jpg?itok=Bb2eCmHX",
-    content: '',
-  },
-  {
-    id: "2",
-    title: "What’s the real cost of your burger?",
-    imageSrc: "//dkt6rvnu67rqj.cloudfront.net/sites/default/files/styles/305x205/public/media/GettyImages-76747748.jpg?itok=e2BWsGD6",
-    content: '',
-  },
-];
+type Props = {
+  posts: Post[];
+}
 
-const BlogPage = (): JSX.Element => {
+const BlogPage = ({ posts }: Props): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<Post | null>(null);
 
   const clickOnPost = (key: string) => {
-    const post = products.find(p => p.id === key);
+    const post = posts.find(p => p.id === key);
     if (post) {
       setSelected(post);
       setIsOpen(true);
@@ -104,7 +47,7 @@ const BlogPage = (): JSX.Element => {
         gridGap="10"
         gridTemplateColumns="repeat( auto-fit, minmax(300px, 1fr) )"
       >
-        {products.map((p) => (
+        {posts.map((p) => (
           <Post
             key={p.id} {...p}
             onClick={() => {
@@ -113,13 +56,15 @@ const BlogPage = (): JSX.Element => {
         ))}
       </Grid>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen}
+             size="xl"
+             onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>{selected?.title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {selected?.content}
+            <div dangerouslySetInnerHTML={{ __html: selected?.content || "" }} />
           </ModalBody>
 
           <ModalFooter>
@@ -132,5 +77,31 @@ const BlogPage = (): JSX.Element => {
     </Flex>
   );
 };
+
+export async function getServerSideProps() {
+  try {
+    const posts = await firestore
+      .collection("blogs")
+      .get();
+
+    return {
+      props: {
+        posts: posts.docs.map(entry => {
+          return {
+            id: entry.id,
+            ...entry.data(),
+          };
+        }),
+      },
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      props: {
+        posts: [],
+      },
+    };
+  }
+}
 
 export default BlogPage;
