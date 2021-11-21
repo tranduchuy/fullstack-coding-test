@@ -4,7 +4,7 @@ import {AccessToken} from 'constants/cookie-name';
 
 export const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
-    timeout: 1000,
+    timeout: 120 * 1000,
 });
 
 api.interceptors.request.use((config) => {

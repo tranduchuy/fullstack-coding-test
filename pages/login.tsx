@@ -36,7 +36,6 @@ const LoginPage = (): JSX.Element => {
                     })
 
                     Cookie.set(AccessToken, accessToken);
-                    await Router.push('/');
                 })
                 .catch((error) => {
                     const errorcode = error.code;

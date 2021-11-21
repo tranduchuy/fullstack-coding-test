@@ -4,3 +4,10 @@ export type AuthInfo = {
     isAdmin: boolean;
     birthday: string;
 }
+
+export type SignUpReqDto = {
+    email: string;
+    name: string;
+    birthday: string;
+    password: string;
+}

@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import {getAuth, createUserWithEmailAndPassword} from "firebase/auth";
 import {
     Box,
     FormControl,
@@ -10,54 +9,48 @@ import {
     Heading, Alert, AlertIcon, AlertDescription,
     Link,
 } from "@chakra-ui/react";
-import Cookie from "js-cookie";
-import {ActionTypes} from "contexts/actions";
-import {AccessToken} from "constants/cookie-name";
 import Router, {useRouter} from "next/router";
 import {useAppDispatch, useAppState} from "contexts/app.context";
 import {FullPageSpinner} from "../components/FullPageSpinner";
+import {SignUpReqDto} from "services/types";
+import {api} from "services/api";
+import {useToast} from "@chakra-ui/react";
+import {AxiosError} from "axios";
 
 const SignUpPage = (): JSX.Element => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [name, setName] = useState("");
+    const [birthday, setBirthday] = useState('1993-01-29');
     const [errorMsg, setErrorMsg] = useState("");
     const [loading, setLoading] = useState(false);
-    const appDispatch = useAppDispatch();
     const appState = useAppState();
     const router = useRouter();
+    const toast = useToast();
 
-    const handleOnSubmit = (event: React.FormEvent) => {
+    const handleOnSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            console.log(email, password);
-            const auth = getAuth();
+            const body: SignUpReqDto = {
+                email,
+                password,
+                birthday,
+                name
+            }
             setLoading(true);
-            createUserWithEmailAndPassword(auth, email, password)
-                .then(async (userCredential) => {
-                    const {email, displayName} = userCredential.user;
-                    const accessToken = await userCredential.user.getIdToken();
-                    appDispatch({
-                        type: ActionTypes.SIGN_IN,
-                        payload: {
-                            email, displayName, accessToken,
-                        },
-                    });
-
-                    Cookie.set(AccessToken, accessToken);
-                    await Router.push("/");
-                })
-                .catch((error) => {
-                    const errorcode = error.code;
-                    const errormessage = error.message;
-                    // ..
-                    console.error(error);
-                    setErrorMsg(errormessage);
-                })
-                .finally(() => {
-                    setLoading(false);
-                })
+            await api.post('/user/sign-up', body);
+            toast({
+                title: 'Sign up successfully',
+                description: 'Please login',
+                status: 'success',
+                duration: 5000,
+                isClosable: true
+            });
+            Router.push('/login');
         } catch (e) {
-            setErrorMsg(e.message);
+            setErrorMsg((e as AxiosError).response?.data?.message || e.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -102,13 +95,14 @@ const SignUpPage = (): JSX.Element => {
                             <FormControl mt={6} isRequired>
                                 <FormLabel>Name</FormLabel>
                                 <Input type="text" placeholder="Your name"
-                                    onChange={event => setPassword(event.currentTarget.value)}
+                                    onChange={event => setName(event.currentTarget.value)}
                                 />
                             </FormControl>
                             <FormControl mt={6} isRequired>
                                 <FormLabel>Birthday</FormLabel>
                                 <Input type="date"
-                                    onChange={event => setPassword(event.currentTarget.value)}
+                                    value={birthday}
+                                    onChange={event => setBirthday(event.currentTarget.value)}
                                 />
                             </FormControl>
                             <Button type="submit" variant="outline" width="full" mt={4}>
