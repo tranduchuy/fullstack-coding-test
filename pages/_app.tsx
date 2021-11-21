@@ -1,26 +1,33 @@
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import {ChakraProvider} from "@chakra-ui/react";
-import { AppProvider, useAppState } from "../contexts/app.context";
+import {AppProvider, useAppDispatch, useAppState} from "contexts/app.context";
 import firebase from 'firebase/initFireBase';
+import {api} from 'services/api';
+import Cookie from 'js-cookie';
+import {AccessToken} from 'constants/cookie-name';
+import {useRouter} from 'next/router';
+import {AuthInfo} from 'services/types';
+import {ActionTypes} from 'contexts/actions';
 
 firebase();
 
 const MyApp = ({Component, pageProps}) => {
     const appState = useAppState();
+    const router = useRouter();
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
-        //getIdToken()
-        //.then(res => {
-        //console.log('auth info', res);
-        //})
-        /**
-         * Here goes the logic of retrieving a user
-         * from the backend and redirecting
-         * an unauthorized user
-         * to the login page
-        */
-        //setUser(result)
-        //console.log(app);
+        if (pageProps.protected && !appState.user) {
+            api.get<AuthInfo>('user/info')
+                .then(res => {
+                    console.log(res);
+                    dispatch({type: ActionTypes.SIGN_IN, payload: res.data});
+                })
+                .catch(() => {
+                    Cookie.remove(AccessToken)
+                    router.push('/login');
+                })
+        }
     }, []);
 
     if (pageProps.protected && !appState.user) {
@@ -30,17 +37,17 @@ const MyApp = ({Component, pageProps}) => {
     }
 
     return (
-      <ChakraProvider>
-          <Component {...pageProps} />
-      </ChakraProvider>
+        <ChakraProvider>
+            <Component {...pageProps} />
+        </ChakraProvider>
     )
 };
 
 const Container = (props) => {
     return (
-      <AppProvider>
-          <MyApp {...props} />
-      </AppProvider>
+        <AppProvider>
+            <MyApp {...props} />
+        </AppProvider>
     )
 }
 
