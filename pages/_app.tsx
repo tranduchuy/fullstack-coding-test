@@ -37,6 +37,7 @@ const MyApp = ({Component, pageProps}) => {
             )
         } else if (!appState.user.isAdmin) {
             router.push('/');
+            return;
         }
     }
 
