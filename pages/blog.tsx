@@ -9,7 +9,7 @@ import Post from "components/Post";
 
 
 type Props = {
-    posts: PostDetail[];
+    posts: PostInfo[];
 }
 
 const BlogPage = ({posts}: Props): JSX.Element => {
