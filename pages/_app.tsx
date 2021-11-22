@@ -35,9 +35,9 @@ const MyApp = ({Component, pageProps}) => {
             return (
                 <div>Loading...</div>
             )
-        } else if (!appState.user.isAdmin) {
+        } else if (!appState.user.isAdmin && pageProps.shouldBeAdmin) {
             router.push('/');
-            return;
+            return <></>;
         }
     }
 
