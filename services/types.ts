@@ -11,3 +11,11 @@ export type SignUpReqDto = {
     birthday: string;
     password: string;
 }
+
+export type PostInfo = {
+    id: string;
+    title: string;
+    imageSrc: string;
+    content: string;
+}
+
