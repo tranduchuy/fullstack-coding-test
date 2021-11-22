@@ -9,7 +9,7 @@ import {useAppDispatch, useAppState} from "contexts/app.context";
 import {AccessToken} from "constants/cookie-name";
 import {ActionTypes} from "contexts/actions";
 import Router from 'next/router';
-import {FullPageSpinner} from "../components/FullPageSpinner";
+import {FullPageSpinner} from "components/FullPageSpinner";
 
 const LoginPage = (): JSX.Element => {
     const [email, setEmail] = useState('');

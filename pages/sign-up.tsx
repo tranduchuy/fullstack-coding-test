@@ -10,8 +10,8 @@ import {
     Link,
 } from "@chakra-ui/react";
 import Router, {useRouter} from "next/router";
-import {useAppDispatch, useAppState} from "contexts/app.context";
-import {FullPageSpinner} from "../components/FullPageSpinner";
+import {useAppState} from "contexts/app.context";
+import {FullPageSpinner} from "components/FullPageSpinner";
 import {SignUpReqDto} from "services/types";
 import {api} from "services/api";
 import {useToast} from "@chakra-ui/react";
