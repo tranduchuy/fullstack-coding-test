@@ -1,4 +1,4 @@
-import { FormControl, FormLabel, Input, Box, Button } from "@chakra-ui/react";
+import { FormControl, FormLabel, Input, Box, Button, Alert, AlertIcon, AlertDescription } from "@chakra-ui/react";
 import { PostInfo } from "services/types";
 import "react-quill/dist/quill.snow.css";
 import dynamic from "next/dynamic";
@@ -43,7 +43,7 @@ const formats = [
   "video",
 ];
 
-type PostData = Omit<PostInfo, 'id'>
+type PostData = Omit<PostInfo, "id">;
 
 type Props = {
   data?: PostData;
@@ -52,13 +52,32 @@ type Props = {
 };
 
 const BlogForm = ({ data, onSubmit, ...rest }: Props): JSX.Element => {
-  const [title, setTitle] = useState(data?.title || '');
-  const [imageSrc, setImageSrc] = useState(data?.imageSrc || '');
-  const [content, setContent] = useState(data?.content || '');
+  const [title, setTitle] = useState(data?.title || "");
+  const [imageSrc, setImageSrc] = useState(data?.imageSrc || "");
+  const [content, setContent] = useState(data?.content || "");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const checkURL = (url): boolean => {
+      return(url.match(/\.(jpeg|jpg|gif|png)$/) != null);
+  }
+
+  const emptyFormInputs = (): boolean => {
+    return [title, imageSrc, content].some((v) => v.trim() === "");
+  };
 
   const handleOnSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    // TODO: should validate form data
+
+    if (emptyFormInputs()) {
+      setErrorMsg("Should fill out all inputs");
+      return;
+    }
+
+    if (!checkURL(imageSrc)) {
+      setErrorMsg("Invalid image source url string");
+      return;
+    }
+
     if (onSubmit) {
       onSubmit({ title, imageSrc, content });
     }
@@ -72,13 +91,22 @@ const BlogForm = ({ data, onSubmit, ...rest }: Props): JSX.Element => {
 
   return (
     <form onSubmit={handleOnSubmit}>
+      {errorMsg.trim() !== "" && (
+        <Box my={4}>
+          <Alert status="error" borderRadius={4}>
+            <AlertIcon />
+            <AlertDescription>{errorMsg}</AlertDescription>
+          </Alert>
+        </Box>
+      )}
+
       <FormControl isRequired>
         <FormLabel>Title</FormLabel>
         <Input type="text" value={title} onChange={(event) => setTitle(event.currentTarget.value)} />
       </FormControl>
 
       <FormControl isRequired mt={6}>
-        <FormLabel>Image Src</FormLabel>
+        <FormLabel>Image Url</FormLabel>
         <Input type="text" value={imageSrc} onChange={(event) => setImageSrc(event.currentTarget.value)} />
       </FormControl>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Flex,
   Table,
@@ -19,18 +19,15 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
-import firestore from "firebase/db";
 import { FullPageSpinner } from "components/FullPageSpinner";
 import { PostInfo } from "services/types";
 import { api } from "services/api";
 import { AxiosError } from "axios";
 import BlogForm from "components/BlogForm";
 
-type Props = {
-  initPosts: PostInfo[];
-};
-const DashboardPage = ({ initPosts }: Props): JSX.Element => {
-  const [posts, setPosts] = useState<PostInfo[]>(initPosts);
+type Props = {};
+const DashboardPage = ({ }: Props): JSX.Element => {
+  const [posts, setPosts] = useState<PostInfo[]>([]);
   const [isOpen, setOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<PostInfo | null>(null);
   const toast = useToast();
@@ -124,6 +121,10 @@ const DashboardPage = ({ initPosts }: Props): JSX.Element => {
       })
   };
 
+  useEffect(() => {
+    reloadList();
+  }, []);
+
   return (
     <>
       <Flex direction="column" color="gray.800" p={6}>
@@ -177,28 +178,13 @@ const DashboardPage = ({ initPosts }: Props): JSX.Element => {
   );
 };
 
-export async function getServerSideProps() {
-  try {
-    const posts = await firestore.collection("blog").get();
-
-    return {
-      props: {
-        initPosts: posts.docs.map((entry) => {
-          return {
-            id: entry.id,
-            ...entry.data(),
-          };
-        }),
-      },
-    };
-  } catch (e) {
-    console.error(e);
-    return {
-      props: {
-        posts: [],
-      },
-    };
-  }
+export async function getStaticProps() {
+  return {
+    props: {
+      protected: true,
+      shouldBeAdmin: true,
+    },
+  };
 }
 
 export default DashboardPage;

@@ -33,11 +33,18 @@ const Home = () => {
           <Box maxW="100%">
             <DynamicText ref={dynamicRef} />
             <Input value={txt} onChange={onChange} />
-            <L>
-              <Link href="/blog">
-                Go to blog
-              </Link>
-            </L>
+            <Box mt={12}>
+              <L>
+                <div>
+                  <Link href="/blog">Go to blog</Link>
+                </div>
+              </L>
+              <L>
+                <div>
+                  <Link href="/dashboard">Go to dashboard</Link>
+                </div>
+              </L>
+            </Box>
           </Box>
         </Center>
       </Flex>

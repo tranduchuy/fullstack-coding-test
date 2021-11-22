@@ -30,10 +30,14 @@ const MyApp = ({Component, pageProps}) => {
         }
     }, []);
 
-    if (pageProps.protected && !appState.user) {
-        return (
-            <div>Loading...</div>
-        )
+    if (pageProps.protected) {
+        if (!appState.user) {
+            return (
+                <div>Loading...</div>
+            )
+        } else if (!appState.user.isAdmin) {
+            router.push('/');
+        }
     }
 
     return (

@@ -1,8 +1,9 @@
 import React, {Dispatch, useContext, useReducer, useState} from "react";
+import { AuthInfo } from "services/types";
 import {ActionTypes} from "./actions";
 
 type AppStateProps = {
-    user: any;
+    user: AuthInfo | null;
 };
 
 const defaultAppState: AppStateProps = {
