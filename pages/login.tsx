@@ -10,6 +10,8 @@ import {AccessToken} from "constants/cookie-name";
 import {ActionTypes} from "contexts/actions";
 import Router from 'next/router';
 import {FullPageSpinner} from "components/FullPageSpinner";
+import { api } from 'services/api';
+import { AuthInfo } from 'services/types';
 
 const LoginPage = (): JSX.Element => {
     const [email, setEmail] = useState('');
@@ -19,6 +21,13 @@ const LoginPage = (): JSX.Element => {
     const appDispatch = useAppDispatch();
     const appState = useAppState();
 
+    const loadAuthInfo = (): Promise<void> => {
+        return api.get<AuthInfo>('user/info')
+            .then(res => {
+                appDispatch({type: ActionTypes.SIGN_IN, payload: res.data});
+            });
+    }
+
     const handleOnSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         try {
@@ -26,16 +35,9 @@ const LoginPage = (): JSX.Element => {
             setLoading(true);
             signInWithEmailAndPassword(auth, email, password)
                 .then(async (userCredential) => {
-                    const {email, displayName} = userCredential.user;
                     const accessToken = await userCredential.user.getIdToken();
-                    appDispatch({
-                        type: ActionTypes.SIGN_IN,
-                        payload: {
-                            email, displayName, accessToken
-                        }
-                    })
-
                     Cookie.set(AccessToken, accessToken);
+                    return loadAuthInfo();
                 })
                 .catch((error) => {
                     const errorcode = error.code;
